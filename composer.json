@@ -1,0 +1,18 @@
+{
+    "name": "dotink/journey",
+    "description": "Journey is a wrapper for FastRoute which supplies missing functionality",
+    "license": "MIT",
+    "authors": [
+        {
+            "name":  "Matthew J. Sahagian",
+            "email": "msahagian@dotink.org",
+            "role":  "Lead Architect / Developer"
+        }
+    ],
+    "require": {
+        "nikic/fast-route": "^1.2"
+    },
+    "autoload": {
+        "classmap": ["src/"]
+    }
+}
