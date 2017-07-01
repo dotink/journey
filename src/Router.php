@@ -12,6 +12,11 @@ use FastRoute;
  */
 class Router
 {
+	protected $resolver = NULL;
+	protected $response = NULL;
+	protected $request = NULL;
+
+
 	/**
 	 *
 	 */
@@ -114,17 +119,19 @@ class Router
 
 					if (isset($handler['mapping'])) {
 						foreach ($params as $name => $value) {
+
 							if (!isset($handler['mapping'][$name])) {
-								continue;
+								$this->request = $this->request->withAttribute($name, $value);
+
+							} else {
+								$type = $handler['mapping'][$name];
+
+								if (isset($this->transformers[$type])) {
+									$value = $this->transformers[$type]->fromUrl($name, $value, $result[2]);
+								}
 							}
 
-							$type = $handler['mapping'][$name];
-
-							if (!isset($this->transformers[$type])) {
-								continue;
-							}
-
-							$params[$name] = $this->transformers[$type]->fromUrl($name, $value, $result[2]);
+							$this->request = $this->request->withAttribute($name, $value);
 						}
 					}
 
@@ -132,7 +139,7 @@ class Router
 					$target = $handler;
 				}
 
-				$this->response = $this->resolver->execute($this, $target, $params);
+				$this->response = $this->resolver->execute($this, $target);
 		}
 
 		return $this->response;
