@@ -65,11 +65,12 @@ class Router
 	/**
 	 *
 	 */
-	public function link($route, $params)
+	public function link($route, $params = array(), $include_domain = FALSE)
 	{
 		$link    = $route;
 		$query   = array();
 		$mapping = array();
+		$domain  = NULL;
 
 		if (preg_match_all('/{([^:]+):([^}]+)}/', $route, $matches)) {
 			$mapping = array_combine($matches[1], $matches[2]);
@@ -90,7 +91,12 @@ class Router
 			$link = str_replace('{' . $name . ':' . $type . '}', urlencode($value), $link);
 		}
 
-		return $link . (count($query) ? '?' . http_build_query($query) : NULL);
+		if ($include_domain) {
+			$uri    = $this->request->getURI();
+			$domain = sprintf('%s://%s', $uri->getScheme(), $uri->getAuthority());
+		}
+
+		return $domain . $link . (count($query) ? '?' . http_build_query($query) : NULL);
 	}
 
 
