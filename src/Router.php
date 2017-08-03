@@ -97,7 +97,11 @@ class Router
 				$value = $this->transformers[$type]->toUrl($name, $value, $params);
 			}
 
-			$link = str_replace('{' . $name . ':' . $type . '}', urlencode($value), $link);
+			if ($type) {
+				$link = str_replace('{' . $name . ':' . $type . '}', urlencode($value), $link);
+			} else {
+				$link = str_replace('{' . $name . '}', urlencode($value), $link);
+			}
 		}
 
 		if ($include_domain) {
