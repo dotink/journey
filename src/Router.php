@@ -72,8 +72,17 @@ class Router
 		$mapping = array();
 		$domain  = NULL;
 
-		if (preg_match_all('/{([^:]+):([^}]+)}/', $route, $matches)) {
+		if (preg_match_all('/{([^:}]+)(?::([^}]+))?}/', $route, $matches)) {
 			$mapping = array_combine($matches[1], $matches[2]);
+		}
+
+		if ($params instanceof ParamProvider) {
+			$provider = $params;
+			$params   = array();
+
+			foreach ($mapping as $name => $type) {
+				$params[$name] = $provider->getRouteParameter($name);
+			}
 		}
 
 		foreach ($params as $name => $value) {
