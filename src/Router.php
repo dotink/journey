@@ -12,8 +12,27 @@ use FastRoute;
  */
 class Router
 {
+	/**
+	 *
+	 */
+	protected $masks = array();
+
+
+	/**
+	 *
+	 */
 	protected $resolver = NULL;
+
+
+	/**
+	 *
+	 */
 	protected $response = NULL;
+
+
+	/**
+	 *
+	 */
 	protected $request = NULL;
 
 
@@ -41,6 +60,19 @@ class Router
 		}
 
 		$this->transformers[$type] = $transformer;
+
+		return $this;
+	}
+
+
+	/**
+	 *
+	 */
+	public function addMask($from, $to)
+	{
+		$this->masks[$from] = $to;
+
+		return $this;
 	}
 
 
@@ -71,6 +103,10 @@ class Router
 		$query   = array();
 		$mapping = array();
 		$domain  = NULL;
+
+		foreach ($this->masks as $from => $to) {
+			$route = str_replace($from, $to, $route);
+		}
 
 		if (preg_match_all('/{([^:}]+)(?::([^}]+))?}/', $route, $matches)) {
 			$mapping = array_combine($matches[1], $matches[2]);
@@ -120,7 +156,14 @@ class Router
 	{
 		$this->request  = $request;
 		$this->response = $response;
-		$result         = $dispatcher->dispatch($request->getMethod(), $request->getUri()->getPath());
+		$request_method = $request->getMethod();
+		$request_path   = $request->getURI()->getPath();
+
+		foreach ($this->masks as $from  => $to) {
+			$request_path = str_replace($to, $from, $request_path);
+		}
+
+		$result = $dispatcher->dispatch($request_method, $request_path);
 
 		switch ($result[0]) {
 			case $dispatcher::NOT_FOUND:
