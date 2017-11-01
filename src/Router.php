@@ -46,6 +46,17 @@ class Router
 
 
 	/**
+	*
+	*/
+	public function addMask($from, $to)
+	{
+		$this->masks[$from] = $to;
+
+		return $this;
+	}
+
+
+	/**
 	 *
 	 */
 	public function addTransformer($type, Transformer $transformer)
@@ -60,17 +71,6 @@ class Router
 		}
 
 		$this->transformers[$type] = $transformer;
-
-		return $this;
-	}
-
-
-	/**
-	 *
-	 */
-	public function addMask($from, $to)
-	{
-		$this->masks[$from] = $to;
 
 		return $this;
 	}
@@ -99,13 +99,13 @@ class Router
 	 */
 	public function link($route, $params = array(), $include_domain = FALSE)
 	{
-		$link    = $route;
+		$target  = $route;
 		$query   = array();
 		$mapping = array();
 		$domain  = NULL;
 
 		foreach ($this->masks as $from => $to) {
-			$route = str_replace($from, $to, $route);
+			$target = str_replace($from, $to, $target);
 		}
 
 		if (preg_match_all('/{([^:}]+)(?::([^}]+))?}/', $route, $matches)) {
@@ -134,9 +134,9 @@ class Router
 			}
 
 			if ($type) {
-				$link = str_replace('{' . $name . ':' . $type . '}', urlencode($value), $link);
+				$target = str_replace('{' . $name . ':' . $type . '}', urlencode($value), $target);
 			} else {
-				$link = str_replace('{' . $name . '}', urlencode($value), $link);
+				$target = str_replace('{' . $name . '}', urlencode($value), $target);
 			}
 		}
 
@@ -145,7 +145,7 @@ class Router
 			$domain = sprintf('%s://%s', $uri->getScheme(), $uri->getAuthority());
 		}
 
-		return $domain . $link . (count($query) ? '?' . http_build_query($query) : NULL);
+		return $domain . $target . (count($query) ? '?' . http_build_query($query) : NULL);
 	}
 
 
