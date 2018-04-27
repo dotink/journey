@@ -163,6 +163,13 @@ class Router
 			$request_path = str_replace($to, $from, $request_path);
 		}
 
+		//
+		// If any masks are in play and the URL was translated, redirect to the canonical URL.
+
+		if ($this->link($request_path) != $request->getURI()->getPath()) {
+			return $response->withStatus(301)->withHeader('Location', $this->link($request_path));
+		}
+
 		$result = $dispatcher->dispatch($request_method, $request_path);
 
 		switch ($result[0]) {
